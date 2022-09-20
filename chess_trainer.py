@@ -78,6 +78,8 @@ class ChessTrainer:
 
                 self.optimizer.step()
 
+                self.generate_graph(board_obs)
+
             with torch.set_grad_enabled(False):
                 cost = None
                 for batch_ind, batch in tqdm(enumerate(val_loader)):
@@ -190,6 +192,7 @@ class ChessTrainer:
                             scores = torch.Tensor(scores)
                             scores = normalize(scores, p=2.0, dim=0)  # normalize scores to match loss function
                             best_move_vector = scores
+                            logits = torch.reshape(logits, (-1,))
                             self.cost = self.loss(logits, best_move_vector)
                             self.optimizer.zero_grad()
 
@@ -213,6 +216,15 @@ class ChessTrainer:
                         print("Loss:", self.cost)
 
         print("Training end ")
+
+    def generate_graph(self, y):
+        transforms = [hl.transforms.Prune('Constant')]  # Removes Constant nodes from graph.
+
+        graph = hl.build_graph(self.chess_model,y)
+        graph.theme = hl.graph.THEMES['blue'].copy()
+        graph.save('chess_base_model', format='png')
+
+        time.sleep(20)
 
     def save(self, path):
         cfg = self.chess_model.state_dict()

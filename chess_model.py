@@ -3,13 +3,13 @@ import torch.nn as nn
 
 
 class ChessModel(nn.Module):
-    def __init__(self,board_obs_pretrained=None):
+    def __init__(self, board_obs_pretrained=None):
         '''
         Main chess model class holding board observation block and move block
         :param board_obs_pretrained: load pretrained weights if exists
         '''
         super().__init__()
-        self.board_nn = BoardObsBlock() # Encoder transfer bitmap to general representation
+        self.board_nn = BoardObsBlock()  # Encoder transfer bitmap to general representation
         if board_obs_pretrained is not None:
             self.board_nn.load_state_dict(board_obs_pretrained)
             print("Loaded from pretrained")
@@ -57,7 +57,7 @@ class BoardObsBlock(nn.Module):
 
 
 class MoveBlock(nn.Module):
-    def __init__(self, num_attention_layers=5, attention_size=512, output_size=30):
+    def __init__(self, num_attention_layers=8, attention_size=512, output_size=30):
         '''
         Move block gets boards representation of N legal moves and calculates their probabilities
         :param num_attention_layers: number of blocks
@@ -68,20 +68,20 @@ class MoveBlock(nn.Module):
         '''
         super().__init__()
         self.moves_dim = output_size
-        self.singal_block = [nn.Linear(self.moves_dim * 200, attention_size), nn.ReLU()]
-        for i in range(num_attention_layers):
-            self.singal_block.append(nn.Linear(attention_size, attention_size))
-            self.singal_block.append(nn.Dropout(0.3))
-            self.singal_block.append(nn.ReLU())
-
-        self.singal_block.append(nn.Linear(attention_size, output_size))
-        self.singal_block = nn.Sequential(*self.singal_block)
+        self.first_layer = [nn.Linear(self.moves_dim * 200, attention_size), nn.ReLU()]
+        self.first_layer = nn.Sequential(*self.first_layer)
+        self.attention_block = torch.nn.MultiheadAttention(attention_size, num_attention_layers)
+        self.last_layer = [nn.ReLU(), nn.Linear(attention_size, output_size)]
+        self.last_layer = nn.Sequential(*self.last_layer)
 
     def forward(self, input, board):
         board = board.expand(self.moves_dim, 100)
         input = torch.cat([board, input], dim=1)
         input = torch.flatten(input)
-        output = self.singal_block(input)
+        output = self.first_layer(input)
+        output = output.unsqueeze(0)
+        attention_output, attention_weights = self.attention_block(output, output, output)
+        output = self.last_layer(attention_output)
         return output, board
 
 

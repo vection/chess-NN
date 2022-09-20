@@ -12,6 +12,10 @@ The suggested network Encode the board presentation with BoardObs outputs vector
 The evaluation would be N scores per move, the scores must be normalized. I chose MSE loss function to minimize the error to match the score.
 The database I used is "Lichess rated games  2400+ elo".
 
+## Model architecture
+### Base observation model 
+![base_chess_model_diagram](https://user-images.githubusercontent.com/28596354/191191765-fc2e1bb3-79ae-4e45-af19-fe5020a7e0cc.png)
+
 ## Preparing the data
 To feed the data there are 2 inputs - current board representation and next moves representation 
 

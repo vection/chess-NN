@@ -78,7 +78,6 @@ class ChessTrainer:
 
                 self.optimizer.step()
 
-                self.generate_graph(board_obs)
 
             with torch.set_grad_enabled(False):
                 cost = None
@@ -217,14 +216,6 @@ class ChessTrainer:
 
         print("Training end ")
 
-    def generate_graph(self, y):
-        transforms = [hl.transforms.Prune('Constant')]  # Removes Constant nodes from graph.
-
-        graph = hl.build_graph(self.chess_model,y)
-        graph.theme = hl.graph.THEMES['blue'].copy()
-        graph.save('chess_base_model', format='png')
-
-        time.sleep(20)
 
     def save(self, path):
         cfg = self.chess_model.state_dict()

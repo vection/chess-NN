@@ -22,7 +22,7 @@ The suggested network encode the board presentation, then pass it to MoveBlock w
 For base model training I add extra layer 100->1 and y label it with position score evaluation.
 The evaluation of MoveBlock would be N scores per move, the scores must be normalized. I chose MSE loss function to minimize the error to match the score.
 
-The database I used is "Lichess rated games  2400+ elo".
+The database I used is "Lichess rated games  2400+ elo". [https://database.lichess.org/] 
 
 ## Model architecture
 ### Base observation model 

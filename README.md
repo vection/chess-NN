@@ -17,6 +17,10 @@ The database I used is "Lichess rated games  2400+ elo".
 ### Base observation model 
 ![base_chess_model_diagram](https://user-images.githubusercontent.com/28596354/191191765-fc2e1bb3-79ae-4e45-af19-fe5020a7e0cc.png)
 
+
+### Move model
+![move_chess_model](https://user-images.githubusercontent.com/28596354/191204492-bf275dab-4011-47d0-beaf-d66303770952.png)
+
 ## Preparing the data
 To feed the data there are 2 inputs - current board representation and next moves representation 
 

@@ -30,7 +30,8 @@ The database I used is "Lichess rated games  2400+ elo". [https://database.liche
 
 
 ### Move model
-![move_chess_model](https://user-images.githubusercontent.com/28596354/191204492-bf275dab-4011-47d0-beaf-d66303770952.png)
+![move_chess_model drawio](https://user-images.githubusercontent.com/28596354/191245081-53c76d3d-9904-4e4c-8df1-669abd54f850.png)
+
 
 ## Preparing the data
 For base board observation understanding model I picked 5M random board observations with their score, added extra layer to provide the model score and able to 

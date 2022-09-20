@@ -22,10 +22,21 @@ The database I used is "Lichess rated games  2400+ elo".
 ![move_chess_model](https://user-images.githubusercontent.com/28596354/191204492-bf275dab-4011-47d0-beaf-d66303770952.png)
 
 ## Preparing the data
-To feed the data there are 2 inputs - current board representation and next moves representation 
+For base board observation understanding model I picked 5M random board observations with their score, added extra layer to provide the model score and able to 
+train compared real board evaluation score which is simple to calculate.
+In MoveBlock this last layer should be removed because we need the output of board representation.
+To prepare base model data I created score calculation per board position and run on all the database.
+
+The MoveBlock model data is more harder to provide as need to provide for each position N top moves.
+That leads to compute time of ~7 seconds per position which takes alot of time to prepare.
+This may improve in the future and might be related to the number of moves (equals N)
+Such behaviour can act like reinforcement learning which agent each move evaluate his options and learn each position.
 
 ## Training phase
-The model train on the database running on the games, for each position generate top N moves with scores, then feed current board and generated boards to network with loss function on logits and scores. The move eventually made is taken by game and not top move score, this is to see more cases and create sense of random picking. For further experiments, can create more random behavior to see more situations.
+To train base model need to provide databse of board fen representation and their scores to train function in chess_main.
+To train move model the current support method is "live" feeding which doing all position move evaluation in runtime, this may be improved in the closed future.
+Note that live feeding is not efficient as it wasting gpu time for cpu bottle neck. 
+
 
 
 

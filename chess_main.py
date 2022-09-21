@@ -30,7 +30,7 @@ class Board:
     def train_base_model(self, dataset_file,config={'bs' : 128, 'epochs': 5, 'train_split': 0.8,'save_path':'E:/Aviv/chess_project/score_model_1.pth'}):
         train, val = self.chess_data.load_score_dataset(dataset_file,train_rate=config['train_split'])
         base_model = ChessTrainer(model_type='base')
-        base_model.train_score_model(train, val, bs=config['bs'], epochs=config['epochs'])
+        base_model.train_score_model(train, val, bs=config['bs'], epochs=config['epochs'],save_checkpoint=config['save_path'])
         base_model.save(config['save_path'])
 
     def train_move_model(self, folder_path,base_pretrained=None, config={'bs' : 128, 'epochs': 5, 'train_split': 0.8,'save_path':'E:/Aviv/chess_project/move_model_1.pth'}):

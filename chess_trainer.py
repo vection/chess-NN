@@ -30,7 +30,7 @@ class ChessTrainer:
         else:
             raise Exception("Unrecognized model")
 
-    def train_score_model(self, train, val, bs=32, epochs=1, lr=0.001):
+    def train_score_model(self, train, val, bs=32, epochs=1, lr=0.001,save_checkpoint=None):
         '''
         Train function for board representation evaluated against observation score
         position score normalized by 100
@@ -106,6 +106,8 @@ class ChessTrainer:
             self.optimizer = torch.optim.Adam(self.chess_model.parameters(), lr=lr)
 
             print("Cost: ", cost.item(), "Time per epoch:", time.time() - start_time)
+            if save_checkpoint is not None:
+                self.save(save_checkpoint)
 
     def train_move_model(self, data=None):
         '''

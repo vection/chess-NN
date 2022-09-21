@@ -7,6 +7,12 @@ This project is still under development and keep updated over time.
 
 Feel free to get inspired and contribute! 
 
+
+
+
+![istockphoto-155371886-612x612](https://user-images.githubusercontent.com/28596354/191534304-90f37dbf-5962-4806-b5e1-b7e7e18f6f8d.jpg)
+
+
 ## Introduction:
 The game of chess known as the oldest game of history, presented in 7th century in the old texts. What makes this game so attractive is the complexity of analyzing moves and able to see the few moves upfront your opponent. 
 The history with computer chess started in 18th century only after a thousand years after invented. There are many approaches when we talk about computer and chess, naïve implementation would be alpha beta algorithm with declaring depth parameter which suffers from computation limit. Newer approach presented as DeepChess aiming to solve the game by using Deep Learning approach.
@@ -22,7 +28,7 @@ The suggested network encode the board presentation, then pass it to MoveBlock w
 For base model training I add extra layer 100->1 and y label it with position score evaluation.
 The evaluation of MoveBlock would be N scores per move, the scores must be normalized. I chose MSE loss function to minimize the error to match the score.
 
-The database I used is "Lichess rated games  2400+ elo".
+The database I used is "Lichess rated games  2400+ elo". [https://database.lichess.org/] 
 
 ## Model architecture
 ### Base observation model 
@@ -30,7 +36,8 @@ The database I used is "Lichess rated games  2400+ elo".
 
 
 ### Move model
-![move_chess_model](https://user-images.githubusercontent.com/28596354/191204492-bf275dab-4011-47d0-beaf-d66303770952.png)
+![move_chess_model drawio](https://user-images.githubusercontent.com/28596354/191245081-53c76d3d-9904-4e4c-8df1-669abd54f850.png)
+
 
 ## Preparing the data
 For base board observation understanding model I picked 5M random board observations with their score, added extra layer to provide the model score and able to 

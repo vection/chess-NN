@@ -6,7 +6,7 @@ import chess.pgn
 from chess_evaluator import ChessEvaluator
 import pickle
 from torch.utils.data import Dataset
-
+from multiprocessing import Pool
 
 class ChessData:
     def __init__(self, path='E:/Aviv/chess_project/Lichess Elite Database/Lichess Elite Database/'):
@@ -48,7 +48,8 @@ class ChessData:
                 all_moves.append(0)
         return new_boards, all_moves, scores
 
-    def load_score_dataset(self, pkl_path, train_rate=0.8):
+    @staticmethod
+    def load_score_dataset(pkl_path, train_rate=0.8):
         if isinstance(pkl_path, str):
             with open(pkl_path, 'rb') as f:
                 dataset = pickle.load(f)
@@ -67,8 +68,8 @@ class ChessData:
         :return: dict with data
         '''
         all_files = os.listdir(self.path)
-        if path is not None:
-            all_files = path
+        # if path is not None:
+        #     all_files = path
         current_boards = []
         all_scores = []
         board = chess.Board()
@@ -134,13 +135,13 @@ class ChessData:
                         next_moves.append(next_move_candidates)
                         current_board_score.append(position_score)
 
-
                     result = f_pgn.headers['Result']
                     # print("Game status end", f_pgn.is_end(), result)
                     f_pgn = chess.pgn.read_game(file)
                     board.reset()
 
-        return {'current_board': current_boards, 'scores': all_scores, 'next_move': next_moves, 'current_board_score': current_board_score}
+        return {'current_board': current_boards, 'scores': all_scores, 'next_move': next_moves,
+                'current_board_score': current_board_score}
 
     def save(self, path, data):
         '''
@@ -188,7 +189,7 @@ class BoardScoreDataset(Dataset):
         Dataset object for base model
         :param data:
         '''
-        self.scores = [score / 100 for score in data['scores']] # normalize all scores by 100
+        self.scores = [score / 100 for score in data['scores']]  # normalize all scores by 100
         self.board_obs = data['current_board']
 
     def __len__(self):
@@ -196,3 +197,81 @@ class BoardScoreDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.board_obs[idx], self.scores[idx]
+
+
+
+
+def merge_dataset_files(files):
+    positions = []
+    scores = []
+    for pkl_path in files:
+        with open(pkl_path, 'rb') as f:
+            dataset = pickle.load(f)
+
+            [scores.append(i) for i in dataset['scores']]
+            [positions.append(i) for i in dataset['current_board']]
+    data = {'current_board':positions, 'scores':scores}
+    return ChessData.load_score_dataset(data, 0.8)
+
+def parse_score_multi_results(res):
+    positions = []
+    scores = []
+    for proc_result in res:
+        [positions.append(i) for i in proc_result[0]]
+        [scores.append(i) for i in proc_result[1]]
+
+    return positions,scores
+
+def create_score_dataset_multi(all_files, max_process=os.cpu_count(),save_path=None):
+    def save(save_p,pos,sc):
+        data = {'current_board': pos, 'scores': sc}
+        '''
+        Save function
+        :param path: pkl path
+        :param data: dict data
+        :return: True if success
+        '''
+        with open(save_p, 'wb') as f:
+            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+        return True
+    proc_pool = Pool(processes=max_process)
+    print("Multiprocessing activated with {} workers".format(max_process))
+    res = proc_pool.map(create_score_dataset_static, all_files)
+    position,scores = parse_score_multi_results(res)
+    if save is not None:
+        save(save_path, position,scores)
+    return position,scores
+
+def create_score_dataset_static(file):
+    '''
+    Dataset creation from folder of files or list of files
+    :param path: path to folder / list of files
+    :return: dict with data
+    '''
+    current_boards = []
+    all_scores = []
+    board = chess.Board()
+    if 'pgn' in file:
+        print(file)
+        file = open(file, 'r')
+        f_pgn = chess.pgn.read_game(file)
+        while f_pgn is not None:
+            # print("New game")
+            for move in list(f_pgn.mainline_moves()):
+                try:
+                    board.push(move)
+                except AssertionError:
+                    move_parsed = chess.Move.from_uci(move)
+                    board.push(move_parsed)
+                current_board = board.fen()
+                position_score = ChessEvaluator.calculate_score(board)
+                all_scores.append(position_score)
+                current_boards.append(current_board)
+
+            result = f_pgn.headers['Result']
+            # print("Game status end", f_pgn.is_end(), result)
+            f_pgn = chess.pgn.read_game(file)
+            board.reset()
+
+    return [current_boards, all_scores]

@@ -3,7 +3,7 @@ import os
 import chess
 import chess.pgn
 import chess.svg
-from chess_data import ChessData
+from chess_data import ChessData,create_score_dataset_multi
 from chess_evaluator import ChessEvaluator
 from chess_trainer import ChessTrainer
 
@@ -48,19 +48,25 @@ class Board:
 #
 # if __name__ == "__main__":
 #     torch.set_default_dtype(torch.float64)
+#     print(torch.cuda.is_available())
+#     print(torch.version.cuda)
 #     path = 'E:/Aviv/chess_project/Lichess Elite Database/Lichess Elite Database/'
 #     print(os.listdir(path))
-#     #
-#
 #     board = Board()
-#     # res = board.chess_data.create_score_dataset(['lichess_elite_2019-03.pgn'])
-#     # board.chess_data.save('E:/Aviv/chess_project/data_2.pkl',res)
+#     all_files = os.listdir(path)
+#     all_files = [path + f for f in all_files]
+#     #res = board.chess_data.create_score_dataset(path)
+#     res = create_score_dataset_multi(all_files[60:70],max_process=5,save_path=('E:/Aviv/chess_project/data_batch_7.pkl'))
+#     print("Finished one batch")
+#     res = create_score_dataset_multi(all_files[70:80], max_process=5, save_path=('E:/Aviv/chess_project/data_batch_8.pkl'))
+#     #print(res)
+#     board.chess_data.save('E:/Aviv/chess_project/data_all.pkl',res)
 #
-#     # train board observation model
-#     # train, val = board.chess_data.load_score_dataset('E:/Aviv/chess_project/data.pkl')
-#     # chess_trainer = ChessTrainer(model_type='base')
-#     # chess_trainer.train_score_model(train,val,bs=256,epochs=25)
-#     # chess_trainer.save('E:/Aviv/chess_project/score_model_1.pth')
+    #train board observation model
+    # train, val = board.chess_data.load_score_dataset('E:/Aviv/chess_project/data.pkl')
+    # chess_trainer = ChessTrainer(model_type='base')
+    # chess_trainer.train_score_model(train,val,bs=256,epochs=25)
+    # chess_trainer.save('E:/Aviv/chess_project/score_model_2.pth')
 #
 #
 #     # train move model

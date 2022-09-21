@@ -48,14 +48,16 @@ class ChessTrainer:
         print("Device: ", device)
         self.chess_model.to(device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'))
 
-        train_loader = DataLoader(train, batch_size=bs, shuffle=True)
-        val_loader = DataLoader(val, batch_size=bs, shuffle=True)
+        train_loader = DataLoader(train, batch_size=bs, shuffle=True,pin_memory=True)
+        val_loader = DataLoader(val, batch_size=bs, shuffle=True,pin_memory=True)
+
 
         self.chess_model.train()
-        for i in tqdm(range(epochs)):
+        for i in range(epochs):
             cost = None
             start_time = time.time()
-            for batch_ind, batch in enumerate(train_loader):
+            print("Epoch: ", i)
+            for batch_ind, batch in tqdm(enumerate(train_loader)):
                 score = torch.tensor(batch[1]).type(torch.DoubleTensor)
 
                 bitmap_boards = []
@@ -65,11 +67,12 @@ class ChessTrainer:
                     board_bitmap = self.chess_data.get_bitboard(self.board)
                     bitmap_boards.append(board_bitmap)
 
-                board_obs = torch.Tensor(bitmap_boards).to(
-                    device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'))
+                board_obs = torch.Tensor(bitmap_boards).cuda()
 
                 model_output = self.chess_model(board_obs)
                 model_output = torch.reshape(model_output, (-1,))
+                if device != 'cpu':
+                    model_output = model_output.cpu()
                 cost = self.loss(score, model_output)
 
                 self.optimizer.zero_grad()

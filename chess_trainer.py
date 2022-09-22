@@ -10,7 +10,7 @@ from torch.nn.functional import normalize
 from torch.utils.data import DataLoader
 import time
 from tqdm import tqdm
-
+import numpy as np
 
 class ChessTrainer:
     def __init__(self, model_type,pretrained=None):
@@ -60,14 +60,15 @@ class ChessTrainer:
             for batch_ind, batch in tqdm(enumerate(train_loader)):
                 score = torch.tensor(batch[1]).type(torch.DoubleTensor)
 
-                bitmap_boards = []
-                # convert boards to bitmap
+                bitmap_boards = np.array([])
+                # convert boards to bitmap using numpy
                 for obs in batch[0]:
                     self.board.set_fen(obs)
-                    board_bitmap = self.chess_data.get_bitboard(self.board)
-                    bitmap_boards.append(board_bitmap)
+                    board_bitmap = np.array(self.chess_data.get_bitboard(self.board))
+                    bitmap_boards = np.append(bitmap_boards, board_bitmap)
 
-                board_obs = torch.Tensor(bitmap_boards).cuda()
+                bitmap_boards = bitmap_boards.reshape((bs,773))
+                board_obs = torch.Tensor(bitmap_boards).to(device=torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'))
 
                 model_output = self.chess_model(board_obs)
                 model_output = torch.reshape(model_output, (-1,))

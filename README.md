@@ -1,3 +1,7 @@
+![logo-no-background](https://user-images.githubusercontent.com/28596354/191732747-5ba879a0-659b-4fc8-bacf-8198cfc2b535.png)
+
+
+
 # Chess Neural Network Model 
 From a love to this game I started research and explore about AI solution for Chess game.
 
